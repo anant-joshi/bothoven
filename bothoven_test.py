@@ -74,16 +74,23 @@ def get_notes_in_time_domain(windows, rms_values):
 def notes_to_frequency_domain(notes):
 	freq_notes = []
 	for note in notes:
+		# w = np.fft.fft(note)
+		# freq_notes.append(np.fft.fftfreq(len(note)))
 		freq_notes.append(np.fft.fft(note))
 	return freq_notes
+
+# #### converts notes to frequencies ####
+# def notes_to_frequencies(notes):
+# 	frequencies = []
+# 	for note in notes:
+# 		w = np.fft.fft(note)
+
 
 #### matches frequency with a note ####
 def match_frequency_to_note(frequency):
 	ln = bisect.bisect_left(note_frequencies, frequency)
 	rn = ln+1
-	index = ln
-	if rn < len(note_frequencies) and (note_frequencies[rn]-frequency) > (frequency - note_frequencies[ln]):
-		index = rn
+	index = int( min(note_frequencies, key=lambda x:abs(x-frequency)))
 	return note_values[note_frequencies[index]]
 
 def find_peak_frequency(note):
@@ -101,7 +108,7 @@ def get_notes_from_frequencies(freq_notes):
 		actual_notes.append(match_frequency_to_note(find_peak_frequency(note)))
 	return actual_notes
 
-
+#hi
 
 def play(sound_file):
     '''
@@ -111,36 +118,38 @@ def play(sound_file):
 
     '''
     sound = get_sound(sound_file)
-    print("sound file: ")
-    print(sound_file)
-    print('\n')
-    print('sound array: ')
-    print(sound)
+    # print("sound file: ")
+    # print(sound_file)
+    # print('\n')
+    # print('sound array: ')
+    # print(sound)
     window_length = int(0.05 * sampling_freq)
-    print(window_length)
-    print(len(sound))
+    # print(window_length)
+    # print(len(sound))
     windows = get_windows(sound, window_length)
-    print('windows: ')
-    for window in windows:
-        print(window)
-    print('\n')
+    # print('windows: ')
+    # for window in windows:
+    #     print(window)
+    # print('\n')
     rms_values = get_rms_values(windows)
-    print('rms values')
-    for rms_value in rms_values:
-        print(rms_value)
-    print('\n')
+    # print('rms values')
+    # for rms_value in rms_values:
+    #     print(rms_value)
+    # print('\n')
     filter_windows(windows, rms_values)
     time_notes = get_notes_in_time_domain(windows, rms_values)
-    print('time notes: ')
-    for time_note in time_notes:
-        print(time_notes)
-    print('\n')
+    # print('time notes: ')
+    # for time_note in time_notes:
+    #     print(time_notes)
+    # print('\n')
     time_notes.pop()
     freq_notes = notes_to_frequency_domain(time_notes)
-    print('time notes: ')
-    for freq_note in freq_notes:
-        print(freq_note)
-    print("\n")
+    # print('freq notes: ')
+    # for freq_note in freq_notes:
+    #     print(freq_note)
+    # print("\n")
+    for note in freq_notes:
+    	print(find_peak_frequency(note))
     identified_notes = get_notes_from_frequencies(freq_notes)    
     return identified_notes
 
