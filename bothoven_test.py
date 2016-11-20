@@ -6,7 +6,7 @@ import bisect
 sampling_freq = 44100
 
 # adjust appropriately
-cutoff_amplitude = 0.2
+cutoff_amplitude = 0
 note_frequencies = [ 1046.50,  1174.66,  1318.51,  1396.91,  1567.98,  1760.00,  1975.53]
 note_frequencies.extend([2093.00,  2349.32,  2637.02,  2793.83,  3135.96,  3520.00,  3951.07])
 note_frequencies.extend([ 4186.01,  4698.63,  5274.04,  5587.65,  6271.93,  7040.00,  7902.13])
@@ -88,9 +88,12 @@ def notes_to_frequency_domain(notes):
 
 #### matches frequency with a note ####
 def match_frequency_to_note(frequency):
-	ln = bisect.bisect_left(note_frequencies, frequency)
-	rn = ln+1
-	index = int( min(note_frequencies, key=lambda x:abs(x-frequency)))
+	# ln = bisect.bisect_left(note_frequencies, frequency)
+	# rn = ln+1
+	freq = min(note_frequencies, key=lambda x:abs(x-frequency))
+	print('frequency', freq)
+	index = note_frequencies.index(freq)
+	print('index: ', index)
 	return note_values[note_frequencies[index]]
 
 def find_peak_frequency(note):
@@ -143,6 +146,7 @@ def play(sound_file):
     #     print(time_notes)
     # print('\n')
     time_notes.pop()
+    print('number of time notes = ',len(time_notes))
     freq_notes = notes_to_frequency_domain(time_notes)
     # print('freq notes: ')
     # for freq_note in freq_notes:
