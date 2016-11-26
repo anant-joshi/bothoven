@@ -2,6 +2,7 @@ import numpy as np
 import wave
 import struct
 import bisect
+import matplotlib.pyplot as plt
 
 sampling_freq = 44100
 
@@ -68,22 +69,39 @@ def get_notes_in_time_domain(windows, rms_values):
 				j = j+1
 				notes.append([])
 				silent = True
+
+	zeroes = 0
+	ones = 0
+	for rms_value in rms_values:
+		if(rms_value == 0):
+			zeroes = zeroes+1
+		else:
+			ones = ones+1
 	return notes
 
-#### converts notes to frequency domain ####
-def notes_to_frequency_domain(notes):
-	freq_notes = []
-	for note in notes:
-		# w = np.fft.fft(note)
-		# freq_notes.append(np.fft.fftfreq(len(note)))
-		freq_notes.append(np.fft.fft(note))
-	return freq_notes
+# #### converts notes to frequency domain ####
+# def notes_to_frequency_domain(notes):
+# 	freq_notes = []
+# 	for note in notes:
+# 		# w = np.fft.fft(note)
+# 		# freq_notes.append(np.fft.fftfreq(len(note)))
+# 		freq_notes.append(np.fft.fft(note))
+# 	return freq_notes
 
 # #### converts notes to frequencies ####
 # def notes_to_frequencies(notes):
 # 	frequencies = []
 # 	for note in notes:
 # 		w = np.fft.fft(note)
+
+def notes_in_frequency(notes):
+	note_freqs = []
+	for note in notes:
+		w = np.fft.fft(note)
+		freqs = np.fft.fftfreq(len(w))
+		freq = freqs[np.argmax(np.abs(w))]
+		note_freqs.append(abs(freq*sampling_freq))
+	return note_freqs
 
 
 #### matches frequency with a note ####
@@ -96,19 +114,19 @@ def match_frequency_to_note(frequency):
 	print('index: ', index)
 	return note_values[note_frequencies[index]]
 
-def find_peak_frequency(note):
-	num_freqs = len(note)
-	index = np.argsort(note)[num_freqs-1]
-	freq = note[index]
-	freq = index*freq/num_freqs
-	return freq
+# def find_peak_frequency(note):
+# 	num_freqs = len(note)
+# 	index = np.argsort(note)[num_freqs-1]
+# 	freq = note[index]
+# 	freq = index*freq/num_freqs
+# 	return freq
 
 
 #### finds the corresponding note according to peak frequency ####
 def get_notes_from_frequencies(freq_notes):
 	actual_notes = []
 	for note in freq_notes:
-		actual_notes.append(match_frequency_to_note(find_peak_frequency(note)))
+		actual_notes.append(match_frequency_to_note(note))
 	return actual_notes
 
 #hi
@@ -120,13 +138,14 @@ def play(sound_file):
     #add your code here
 
     '''
+
     sound = get_sound(sound_file)
     # print("sound file: ")
     # print(sound_file)
     # print('\n')
     # print('sound array: ')
     # print(sound)
-    window_length = int(0.05 * sampling_freq)
+    window_length = int(0.005 * sampling_freq)
     # print(window_length)
     # print(len(sound))
     windows = get_windows(sound, window_length)
@@ -146,15 +165,8 @@ def play(sound_file):
     #     print(time_notes)
     # print('\n')
     time_notes.pop()
-    print('number of time notes = ',len(time_notes))
-    freq_notes = notes_to_frequency_domain(time_notes)
-    # print('freq notes: ')
-    # for freq_note in freq_notes:
-    #     print(freq_note)
-    # print("\n")
-    for note in freq_notes:
-    	print(find_peak_frequency(note))
-    identified_notes = get_notes_from_frequencies(freq_notes)    
+    freq_notes = notes_in_frequency(time_notes)
+    identified_notes = get_notes_from_frequencies(freq_notes)
     return identified_notes
 
 ############################## Read Audio File #############################
@@ -165,7 +177,7 @@ if __name__ == "__main__":
     Identified_Notes = play(sound_file)
     print("Notes = ", Identified_Notes)
 
-    #code for checking output for all images
+    # code for checking output for all images
     Identified_Notes_list = []
     for file_number in range(1,6):
         file_name = "Test_Audio_files/Audio_"+str(file_number)+".wav"
