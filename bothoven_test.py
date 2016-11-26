@@ -69,14 +69,6 @@ def get_notes_in_time_domain(windows, rms_values):
 				j = j+1
 				notes.append([])
 				silent = True
-
-	zeroes = 0
-	ones = 0
-	for rms_value in rms_values:
-		if(rms_value == 0):
-			zeroes = zeroes+1
-		else:
-			ones = ones+1
 	return notes
 
 # #### converts notes to frequency domain ####
@@ -109,9 +101,7 @@ def match_frequency_to_note(frequency):
 	# ln = bisect.bisect_left(note_frequencies, frequency)
 	# rn = ln+1
 	freq = min(note_frequencies, key=lambda x:abs(x-frequency))
-	print('frequency', freq)
 	index = note_frequencies.index(freq)
-	print('index: ', index)
 	return note_values[note_frequencies[index]]
 
 # def find_peak_frequency(note):
@@ -145,7 +135,11 @@ def play(sound_file):
     # print('\n')
     # print('sound array: ')
     # print(sound)
-    window_length = int(0.005 * sampling_freq)
+    # w = np.fft.fft(sound)
+    # plt.plot(w)
+    # plt.show()
+
+    window_length = int(0.01* sampling_freq)
     # print(window_length)
     # print(len(sound))
     windows = get_windows(sound, window_length)
@@ -183,5 +177,5 @@ if __name__ == "__main__":
         file_name = "Test_Audio_files/Audio_"+str(file_number)+".wav"
         sound_file = wave.open(file_name)
         Identified_Notes = play(sound_file)
-        Identified_Notes_list.append(Identified_Notes)
-    print (Identified_Notes)
+        Identified_Notes_list.extend(Identified_Notes)
+    print (Identified_Notes_list)
